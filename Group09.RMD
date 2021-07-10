@@ -6,3 +6,18 @@ output: pdf_document
 ---
 
 
+```{r libraries}
+                        #Add the required libraries here
+```
+
+#Intoduction
+
+#Exploratory Analysis 
+
+#Formal Analysis  
+
+#Conclusion 
+
+#Future Work
+
+#Refrences
