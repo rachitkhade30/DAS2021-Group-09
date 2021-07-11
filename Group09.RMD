@@ -1,6 +1,7 @@
 ---
-title: "Project 2"
+title: "project2"
 author: "Jialin Sun, yiming lei, Yilin Liang, Ruilin Ma, Rachit Rakesh Khade"
+date: "2021/7/23
 output:
   pdf_document:
     latex_engine: pdflatex
@@ -18,32 +19,43 @@ knitr::opts_chunk$set(eval = TRUE, warning = FALSE, message = FALSE, comment = N
 ```{r libraries,echo = FALSE}
 library(tidyverse)
 library(moderndive)
-library(gapminder)
-library(sjPlot)
-library(stats)
-library(jtools)
-library(knitr)
+library(skimr)
 library(kableExtra)
-library(janitor)
+library(gridExtra)
+library(devtools)
+library(magrittr)
 library(ggplot2)
+library(maps)
+library(RColorBrewer)
+library(viridis)
+library(ggpubr)
 library(GGally)
+library(corrplot)
+library(knitr)
 library(olsrr)
 library(data.table)
-
+library(moderndive)
+library(ggfortify)
+library(diagram)
+library(ggthemes)
+library(cowplot)
+library(showtext)
+library(ggnewscale)
+library(gapminder)
+library(janitor)
 ```
 
-```{r data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
+```{R data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
+#read the file
 dat<-read.csv("dataset9.csv")
-### pre-processing the data
 #add the score column,if rating>7,then 1,else 0
 dat<-mutate(dat,score=ifelse(rating>7,1,0))
-
 #replace NA with mean value in length column 
 dat$length[is.na(dat$length)]<-mean(dat$length,na.rm = TRUE)
-
-# select the usable columns
-dat<- dat[c(2,3,4,5,6,8)]
+dat$scorename[dat$score==1] <- "greater than 7"
+dat$scorename[dat$score==0] <- "lower than 7"
 ```
+
 
 #Intoduction
 
