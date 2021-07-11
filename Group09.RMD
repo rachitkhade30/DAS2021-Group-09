@@ -5,9 +5,38 @@ date: "10 July 2021"
 output: pdf_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+```
 
-```{r libraries}
-                        #Add the required libraries here
+```{r libraries,echo = FALSE}
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(knitr)
+library(kableExtra)
+library(janitor)
+library(ggplot2)
+library(GGally)
+library(olsrr)
+library(data.table)
+
+```
+
+```{r data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
+dat<-read.csv("dataset9.csv")
+### pre-processing the data
+#add the score column,if rating>7,then 1,else 0
+dat<-mutate(dat,score=ifelse(rating>7,1,0))
+
+#replace NA with mean value in length column 
+dat$length[is.na(dat$length)]<-mean(dat$length,na.rm = TRUE)
+
+# select the usable columns
+dat<- dat[c(2,3,4,5,6,8)]
 ```
 
 #Intoduction
