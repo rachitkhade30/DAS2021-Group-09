@@ -1,13 +1,48 @@
 ---
-title: "DAS Group 9 RMD"
-author: "Group 9"
-date: "10 July 2021"
-output: pdf_document
+title: "Project 2"
+author: "Jialin Sun, yiming lei, Yilin Liang, Ruilin Ma, Rachit Rakesh Khade"
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: yes
+  html_document:
+    df_print: paged
+  word_document: default
+fig_caption: yes
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+```
 
-```{r libraries}
-                        #Add the required libraries here
+```{r libraries,echo = FALSE}
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(knitr)
+library(kableExtra)
+library(janitor)
+library(ggplot2)
+library(GGally)
+library(olsrr)
+library(data.table)
+
+```
+
+```{r data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
+dat<-read.csv("dataset9.csv")
+### pre-processing the data
+#add the score column,if rating>7,then 1,else 0
+dat<-mutate(dat,score=ifelse(rating>7,1,0))
+
+#replace NA with mean value in length column 
+dat$length[is.na(dat$length)]<-mean(dat$length,na.rm = TRUE)
+
+# select the usable columns
+dat<- dat[c(2,3,4,5,6,8)]
 ```
 
 #Intoduction
@@ -15,6 +50,106 @@ output: pdf_document
 #Exploratory Analysis 
 
 #Formal Analysis  
+
+```{r score_class, echo = FALSE, eval = FALSE}
+### change the class of score from numeric to factor
+dat$score<-as.factor(dat$score)
+```
+In the pre-processing project, the rating item is divided in to two parts:
+1: Greater than 7
+0: no more than 7
+
+\newpage
+# Formal Data Analysis {#sec:FDA}
+
+To begin our analyze of happiness score formally, we fit the following linear model to the data.
+
+$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
+\widehat{\beta}_{\mbox{1}} \cdot \widehat{\mbox{year}}(i) +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{length}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{3}} \cdot {\mbox{budget}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{4}} \cdot {\mbox{votes}}_{\mbox{i}}+
+ \widehat{\beta}_{\mbox{5}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+ 
+```{r first_model, echo = FALSE, eval = TRUE}
+model1 <- glm(score ~ year+length+budget+votes+genre, data = dat, 
+             family = binomial(link = "logit"))
+summ(model1)
+```
+
+
+According to the p-value, we can see two variables are not or partly not significant. First is year and the other is genre. Now consider them separately.
+
+Firstly, analyze of film score formally, we fit the following general linear model between independent variable year and response variable score.
+
+```{r year_score, echo = FALSE, eval = TRUE}
+model_year<-glm(score~year,data = dat,family = binomial(link = "logit"))
+summ(model_year)
+dat_year <- dat %>%
+  select(year,score) %>%
+  mutate(high.score = fitted(model_year))
+ggplot(data = dat_year, aes(x = year, y = high.score)) +
+  geom_smooth(method="glm", 
+              method.args = list(family="binomial"), 
+              se = FALSE) +
+  labs(x = "Year", y = "Probability of score higher than 7")
+```
+
+According to the box plot, there seems not a significant difference between the distribution just different variance. So the variable year has no effect on the film score.
+
+Next, because the variable genre is also a category variable which contains 7 kinds of films: Action, Animation, Comedy, Documentary, Drama and Romance. Therefore it is necessary to consider genre and score as two category variables.
+
+```{r genre_score, echo = FALSE, eval = TRUE}
+dat.genre <- dat %>%
+  select(genre, score)
+
+dat %>% 
+  tabyl(score, genre) %>% 
+  adorn_percentages() %>% 
+  adorn_pct_formatting() %>% 
+  adorn_ns() # To show original counts
+```
+
+According the above percentage table, compared with Drama and Action, Comedy, Documentary and Animation tend to get a high score. And in 127 Short film, there is only 1 got a score lower than 7. 
+
+```{r genre_plot, echo = FALSE, eval = TRUE}
+ggplot(dat, aes(x= score,  y = ..prop.., group=genre, fill=genre)) + 
+  geom_bar(position="dodge", stat="count") +
+  labs(y = "Proportion")
+model.genre <- glm(score ~ genre, data = dat, family = binomial(link = "logit"))
+summary(model.genre)
+summ(model.genre)
+```
+
+According to the p-value, the Romance film is not significant but in the percentage table, the number of this kind of film is only 31 which may cause a non-significance problem, so this problem can be ignored provisionally. But because the genre is a category variable, is should be consider separately.
+
+Next delete the year variable which is not significant and check the AIC to choose our best model.
+
+```{r test, echo = FALSE, eval = TRUE}
+model2 <- glm(score ~ length+budget+votes+genre, data = dat, 
+             family = binomial(link = "logit"))
+summ(model2)
+abc<-step(model2,direction = 'both')
+
+```
+
+The AIC of model2 is 1571.91 and according to the stepwise regression, we can know this model is the best one with a lowest AIC.
+
+$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
+ \widehat{\beta}_{\mbox{1}} \cdot {\mbox{length}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{budget}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{3}} \cdot {\mbox{votes}}_{\mbox{i}}+
+ \widehat{\beta}_{\mbox{4}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+
+```{r table, echo = FALSE, eval = TRUE }
+modcoefs <- round(coef(model2), 2)
+
+confint(model2) %>%
+  kable()
+
+```
 
 #Conclusion 
 
