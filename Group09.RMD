@@ -504,3 +504,15 @@ confint(model2) %>%
 # Conclusions {#sec:Conc}
 
 # Futrue work {#sec:Fut}
+
+# Reference {#sec:REF}
+
+1.Balabantaray S R. Impact of Indian cinema on culture and creation of world view among youth: A sociological analysis of Bollywood movies[J]. Journal of Public Affairs, 2014: e2405.
+
+2.Homan R L. The Everyman movie, circa 1991[J]. Journal of Popular Film and Television, 1997, 25(1): 21-30.
+
+3.Jackson T, Marks N. Consumption, sustainable welfare and human needs—with reference to UK expenditure patterns between 1954 and 1994[J]. Ecological economics, 1999, 28(3): 421-441.
+
+4.Kubrak T. Impact of Films: Changes in Young People’s Attitudes after Watching a Movie[J]. Behavioral Sciences, 2020, 10(5): 86.
+
+5.Peralta V. Extraction and integration of movielens and imdb data[J]. Laboratoire Prisme, Université de Versailles, Versailles, France, 2007.
