@@ -1,1 +1,518 @@
+---
+title: "project2"
+author: "Jialin Sun, yiming lei, Yilin Liang, Ruilin Ma, Rachit Rakesh Khade"
+date: "2021/7/23"
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: yes
+  html_document:
+    df_print: paged
+  word_document: default
+fig_caption: yes
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+```
+
+```{r libraries,echo = FALSE}
+library(tidyverse)
+library(moderndive)
+library(skimr)
+library(kableExtra)
+library(gridExtra)
+library(devtools)
+library(magrittr)
+library(ggplot2)
+library(maps)
+library(RColorBrewer)
+library(viridis)
+library(ggpubr)
+library(GGally)
+library(corrplot)
+library(knitr)
+library(olsrr)
+library(data.table)
+library(moderndive)
+library(ggfortify)
+library(diagram)
+library(ggthemes)
+library(cowplot)
+library(showtext)
+library(ggnewscale)
+library(gapminder)
+library(janitor)
+```
+
+```{R data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
+#read the file
+dat<-read.csv("dataset9.csv")
+#add the score column,if rating>7,then 1,else 0
+dat<-mutate(dat,score=ifelse(rating>7,1,0))
+#replace NA with mean value in length column 
+dat$length[is.na(dat$length)]<-mean(dat$length,na.rm = TRUE)
+dat$scorename[dat$score==1] <- "greater than 7"
+dat$scorename[dat$score==0] <- "lower than 7"
+```
+
+# Introduction {#sec:Intro}
+
+With the gradual development of material life, the pursuit of human life is not only food and clothing, but also begins to have spiritual goals. Jackson T and Marks N. believe that people's life has shifted from material pursuit to spiritual pursuit in the past 40 years according to their consumption outlook (Jackson T, Marks N.1999). In recent years, watching movies has become an indispensable form of entertainment in most people's lives (Kubrak T.2020). A good movie can not only bring people happiness, but also usually reflect some social problems and phenomena. According to sociological analysis, film is not only a good medium to spread cultural and social phenomena, but also a kind of relaxed entertainment (Balabantaray S R.2014). If a film can engrave these phenomena into people's minds, it is vital to improve social conduct. In most movies, the social phenomena expressed in the movies are deeply engraved in the minds of audiences by bringing people emotions such as touching, happiness, sadness and memories (Homan R L.1997).
+
+In order to make a better and more popular movie, this article will explore the influence factors of movie rating by analyzing 3001 movies from the IMDB movie database. IMDb, originally a hobby organization of international fan groups, is currently a website owned by Amazon and contains as much information as possible about every movie (Peralta v. 2007). According to the description of films in the database, it can be seen that they are related to the six main factors, which are year, running time, budget, number of positive votes, genre of film, and IMDB rating. Through the chart and the establishment of a generalized linear model to analyze the relationship between IMDB rating and several important factors affecting the rating, the rating score is equal to 7 as the critical boundary of the film quality, the most significant influencing factors, the results can be applied to the field of film production, but also conducive to social construction.
+
+This paper mainly consists of six parts. The Section \ref{sec:Intro} is introduction. The Section \ref{sec:MET} is the main definition and method of the factors used in the analysis. The Section \ref{sec:EDA} is the exploratory data analysis of IMDB rating and these factors, and studies the relationship between them. In Section \ref{sec:FDA}, the generalized linear model (GLM) is used to analyze the data. The Section \ref{sec:Conc} is the summary of the analysis. The Section \ref{sec:REF} is the reference.
+
+# Main Definitions And Method {#sec:MET}
+
+## Population and Data {#sec:PAD}
+
+### Population {#sec:POP}
+
+3001 movies from the IMDB movie database
+
+### Data Collection {#sec:DCO}
+
+The data is from the IMDB movie database.
+The variables are shown in the followed table.
+
+```{r data1, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.width = 2}
+#Please make a new table1
+#table2
+
+```
+## Objective {#sec:OBJ}
+
+```{r data3436, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='110%',out.width='110%'}
+
+text_tbl <- data.frame(
+  category = c("Dependent variable", "Dependent variable", "Independent variable", "Independent variable", "Independent variable", "Independent variable", "Independent variable"),
+  variable = c(
+    "film.id",
+    "rating", 
+    "year", 
+    "length ", 
+    "budget", 
+    "votes", 
+    "genre" 
+  ),
+  definition = c("The unique identifier for the film
+", "IMDB rating from 0-10
+", "Year of release of the film in cinemas", " Duration (in minutes)
+", "Budget for the films production (in $1000000s)", "Number of positive votes received by viewers
+", "Genre of the film
+"),
+  type = c(
+    "classified variable",
+    "continuous variable", 
+    "continuous variable", 
+    "continuous variable", 
+    "continuous variable", 
+    "continuous variable", 
+    "classified variable"
+  )
+)
+
+kable(text_tbl,caption = '\\label{tab:summaries1} variable definition') %>%
+  kable_styling(full_width = F,latex_options = "hold_position", font_size = 8) %>%
+  column_spec(1, bold = T, border_right = T) %>%
+  column_spec(2, width = "6em")%>%
+  column_spec(3, width = "10em")
+
+
+```
+
+
+### Primary Objective {#sec:PRO}
+
+Analyze the reasons why IMDB score exceeds 7
+
+### Secondary Objectives {#sec:SEO}
+
+The influencing factors of IMDB rating were analyzed.
+Analyze the relationship between the six relevant information of the film. They are year, running time, budget, number of positive votes, genre, and IMDB rating.
+
+## Work-flow {#sec:FLOW}
+
+```{r data2, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='80%',out.width='80%'}
+pos <- coordinates(pos = c(5,5))
+cc <- c("Introduction", "Definition\nAnd\nMethod","Exploratory\nData Analysis",
+        "Formal Data\nAnalysis", "Conclusion","NULL", "NULL"," Pie chat,\nHistogram,\nBoxplot",
+        "Correlation\nmatrix,\n(GLM) model"," NULL")
+openplotmat(main = "Flow Chart")
+straightarrow(from = pos[1,] ,to = pos[2,],lwd = 2, arr.pos = 0.6)
+straightarrow(from = pos[2,] ,to = pos[3,],lwd = 2, arr.pos = 0.6)
+straightarrow(from = pos[3,] ,to = pos[4,],lwd = 2, arr.pos = 0.6)
+straightarrow(from = pos[4,] ,to = pos[5,],lwd = 2, arr.pos = 0.6)
+straightarrow(from = pos[4,] ,to = pos[5,],lwd = 2, arr.pos = 0.6)
+straightarrow(from = pos[3,] ,to = pos[8,],lwd = 2, arr.pos = 0.8)
+straightarrow(from = pos[4,] ,to = pos[9,],lwd = 2, arr.pos = 0.8)
+for(i in c(1, 2, 3, 4, 5)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc[i],cex=0.8)
+for(i in c(8, 9)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc[i],cex=0.8)
+```
+
+
+# Exploratory Data Analysis {#sec:EDA}
+```{r table, echo = FALSE}
+#The table of year
+dat %>%
+summarise(name="Year", n=n(),Mean=round(mean(year),digits=1), St.Dev=round(sd(year),digits=1),
+Min=min(year), Q1 = quantile(year,0.25), Median=median(year),
+Q3 = quantile(year,0.75), Max=max(year))-> table1
+
+#The table of length
+dat %>%
+summarise(name="Length", n=n(),Mean=round(mean(length),digits=1), St.Dev=round(sd(length),digits=1),
+Min=min(length), Q1 = quantile(length,0.25), Median=median(length),
+Q3 = quantile(length,0.75), Max=max(length))-> table2
+
+#The table of budget
+dat %>%
+summarise(name="Budget", n=n(),Mean=round(mean(budget),digits=1), St.Dev=round(sd(budget),digits=1),
+Min=min(budget), Q1 = quantile(budget,0.25), Median=median(budget),
+Q3 = quantile(budget,0.75), Max=max(budget))-> table3
+
+#The table of votes
+dat %>%
+summarise(name="Votes", n=n(),Mean=round(mean(votes),digits=1), St.Dev=round(sd(votes),digits=1),
+Min=min(votes), Q1 = quantile(votes,0.25), Median=median(votes),
+Q3 = quantile(votes,0.75), Max=max(votes))-> table4
+
+#The table of rating
+dat %>%
+summarise(name="Rating", n=n(),Mean=round(mean(rating),digits=1), St.Dev=round(sd(rating),digits=1),
+Min=min(rating), Q1 = quantile(rating,0.25), Median=median(rating),
+Q3 = quantile(rating,0.75), Max=max(rating))-> table5
+
+#Combining the two tables
+dplyr::union_all(table1,table2) -> table
+dplyr::union_all(table,table3) -> table
+dplyr::union_all(table,table4) -> table
+dplyr::union_all(table,table5) -> table
+
+table%>%
+  kable(caption = '\\label{tab:summaries} Summary statistics',  align = c("c", "c", "c")) %>%
+kable_styling(latex_options = "hold_position")
+```
+
+Firstly, in order to explore the data, the summary of different variables is necessary, this is the summary table above, we choose five numeric variables to calculate their descriptive statistic, the general analysis of the sample data shows that the total sample size is 3001. The earliest film in the sample was released in 1895, and the latest was released in 2005. The average length of the films was 81.6 minutes, with the shortest being just one minute and the longest 555 minutes. Budgets range from 1.2 million dollars to 23.4 million dollars, and according to the quartile, most films still cost more than 10 million dollars. As can be seen from the standard deviation of the votes, there is a large difference between different films, with the standard deviation reaching 3780.1, while the average value is only 655.8 which means that the number of films that are satisfied by the audience is very small, and the number of films that are reviewed by the majority of the audience is very few. In terms of film rating data, most films are only around 5 out of 10, and the best films are 9.2 while the lowest is only 0.8.
+
+```{r histogram1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyear} Year histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram1 <- ggplot(dat, aes(year,fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram1
+```
+
+Figure 1 is a bar chart which illustrate the number of different kinds of films published in different years from 1890 to 2005. According to the trend in the bar chart, it can be seen that with the increase of years, the number of the sum of all kinds of films kept an increasing trend. And short films was increasing, accounting for a larger proportion, and the proportion of drama was also gradually increasing.The number of documentaries has also begun to increase in recent years, but the proportion is still not high. Action films and comedies have always dominated, while cartoons, after their golden age from 1930 to 1956, now account for a relatively small proportion. In addition, The number of romantic films is always in a small number, indicating that the market of romantic films is still small and unloved by the audience.
+
+```{r histogram2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} Length histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram2 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram2
+```
+
+Figure 2 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
+
+```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram3 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram3
+```
+
+Figure 3 is the relationship between votes and the number of different kinds of films. As the score goes up, the number of films gets smaller and smaller whichever kinds of films they belong to and Very few films score is above 7. According to the trend we can know that the larger number of which kinds of films, the more of that kinds of films can get a high score.
+
+```{r pie1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(greater than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# Barplot
+mytable <- xtabs(~genre+scorename,data=dat)
+table <- data.frame(mytable)
+
+table <- data.frame(table)
+#$labelPosition<-table$Freq
+#table$label<-paste0(table$category,"\n value: ",table$Freq*100,"%")
+
+table%>%
+  filter(scorename=="greater than 7") -> tablenew1
+
+label_value <- paste('(', round(tablenew1$Freq/sum(tablenew1$Freq) * 100, 2), '%)', sep = '')
+label <- paste(tablenew1$genre, label_value, sep = '')
+
+p <- ggplot(data = tablenew1, mapping = aes(x = 'Content', y = Freq, fill = genre)) +
+  geom_bar(stat = 'identity', position = 'stack', width = 1)
+p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
+  theme_pander()+
+  theme(axis.text = element_blank()) + 
+  theme(axis.ticks = element_blank()) + 
+  scale_fill_discrete(labels = label)
+```
+
+Figure 4 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
+
+```{r pie2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(lower than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# Barplot
+mytable <- xtabs(~genre+scorename,data=dat)
+table <- data.frame(mytable)
+
+table <- data.frame(table)
+#$labelPosition<-table$Freq
+#table$label<-paste0(table$category,"\n value: ",table$Freq*100,"%")
+
+table%>%
+  filter(scorename=="lower than 7") -> tablenew2
+
+label_value <- paste('(', round(tablenew2$Freq/sum(tablenew2$Freq) * 100, 2), '%)', sep = '')
+label <- paste(tablenew2$genre, label_value, sep = '')
+
+p <- ggplot(data = tablenew2, mapping = aes(x = 'Content', y = Freq, fill = genre)) +
+  geom_bar(stat = 'identity', position = 'stack', width = 1)
+p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') + 
+  theme_pander()+
+  theme(axis.text = element_blank()) + 
+  theme(axis.ticks = element_blank()) +
+  scale_fill_discrete(labels = label)
+```
+
+Figure 5 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
+
+```{r boxplot1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotyear} Year boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of year
+boxplot1 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=year, fill= genre))+
+  guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="Year")
+boxplot1
+```
+
+```{r boxplot2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} Length boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of length
+boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Length)")
+boxplot2
+```
+
+```{r boxplot3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotbudget} Budget boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of budget
+boxplot3 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=budget, fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="Budget")
+boxplot3
+```
+
+```{r boxplot4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} Votes boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of votes
+boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Votes)")
+boxplot4
+```
+
+Figure 6-9 are box plots between different variables (year, length, budget and votes) and rating levels (lower than 7 or not) of different kinds of films.
+
+```{r line, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:plotline} line plot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+
+```
+
+```{r scatter1, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point8} The relationship of factors related to independent variables",fig.pos = "H"}
+
+Num.cols <- scale(dat[,2:5])
+Cor.data <- cor(Num.cols)
+corrplot(Cor.data, method = 'color')
+corrplot(Cor.data, method = "number")
+```
+
+
+
+```{r corr_matrix, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point00} Correlation matrix of data",fig.pos = "H"}
+### correlation matrix using ggpairs
+ggpairs(scale(dat[,2:5]),
+        upper = list(continuous = "cor", combo = "box_no_facet", discrete = "count", na ="na"),
+        lower = list(continuous = "points", combo = "facethist", discrete = "facetbar", na ="na"),
+        diag = list(continuous = "densityDiag", discrete = "barDiag", na = "naDiag"),
+  params = NULL,)+
+  theme_test()+
+  theme(plot.title = element_text(size = 8,hjust = 0.5, face = "bold"),
+        text = element_text(size = 8,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size = 8,face ="bold"))
+```
+
+Figure 10, Figure 11 and Figure 12 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
+
+\newpage
+# Formal Data Analysis {#sec:FDA}
+
+In order to eliminate the impact of dimensional and value range differences among indexes on the results of data analysis, it is necessary to standardize the length,year,budget,votes data
+ $${\mbox{x}}_{\mbox{standardize}}=(x-mean(x))/sd(x)$$
+```{r data standardize,echo = FALSE, eval = FALSE}
+###standardize variables 
+dat$length<-(dat$length-mean(dat$length))/sd(dat$length)
+dat$year<-(dat$year-mean(dat$year))/sd(dat$year)
+dat$budget<-(dat$budget-mean(dat$budget))/sd(dat$budget)
+dat$votes<-(dat$votes-mean(dat$votes))/sd(dat$votes)
+head(dat)
+```
+
+
+
+To begin our analyze of happiness score formally, we fit the following linear model to the data.
+
+$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
+\widehat{\beta}_{\mbox{1}} \cdot \widehat{\mbox{year}}(i) +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{length}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{3}} \cdot {\mbox{budget}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{4}} \cdot {\mbox{votes}}_{\mbox{i}}+
+ \widehat{\beta}_{\mbox{5}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+```{r score_class, echo = FALSE, eval = FALSE}
+### change the class of score from numeric to factor
+dat$score<-as.factor(dat$score)
+```
+In the pre-processing project, the rating item is divided in to two parts:
+1: Greater than 7
+0: no more than 7 
+ 
+```{r first_model, echo = FALSE, eval = TRUE}
+dat[,2:5] <- scale(dat[,2:5])
+model1 <- glm(score ~ year+length+budget+votes+genre, data = dat, 
+             family = binomial(link = "logit"))
+summary(model1)
+```
+
+
+According to the p-value, we can see two variables are not or partly not significant. First is year and the other is genre. Now consider them separately.
+
+Firstly, analyze of film score formally, we fit the following general linear model between independent variable year and response variable score.
+
+```{r year_score, echo = FALSE, eval = TRUE}
+model_year<-glm(score~year,data = dat,family = binomial(link = "logit"))
+summary(model_year)
+dat_year <- dat %>%
+  select(year,score) %>%
+  mutate(high.score = fitted(model_year))
+ggplot(data = dat_year, aes(x = year, y = high.score)) +
+  geom_smooth(method="glm", 
+              method.args = list(family="binomial"), 
+              se = FALSE) +
+  labs(x = "Year", y = "Probability of score higher than 7")
+```
+
+According to the box plot, there seems not a significant difference between the distribution just different variance. So the variable year has no effect on the film score.
+
+Next, because the variable genre is also a category variable which contains 7 kinds of films: Action, Animation, Comedy, Documentary, Drama and Romance. Therefore it is necessary to consider genre and score as two category variables.
+
+```{r genre_score, echo = FALSE, eval = TRUE}
+dat.genre <- dat %>%
+  select(genre, score)
+
+dat %>% 
+  tabyl(score, genre) %>% 
+  adorn_percentages() %>% 
+  adorn_pct_formatting() %>% 
+  adorn_ns() # To show original counts
+```
+
+According the above percentage table, compared with Drama and Action, Comedy, Documentary and Animation tend to get a high score. And in 127 Short film, there is only 1 got a score lower than 7. 
+
+```{r genre_plot, echo = FALSE, eval = TRUE}
+ggplot(dat, aes(x= score,  y = ..prop.., group=genre, fill=genre)) + 
+  geom_bar(position="dodge", stat="count") +
+  labs(y = "Proportion")
+model.genre <- glm(score ~ genre, data = dat, family = binomial(link = "logit"))
+summary(model.genre)
+summary(model.genre)
+```
+
+According to the p-value, the Romance film is not significant but in the percentage table, the number of this kind of film is only 31 which may cause a non-significance problem, so this problem can be ignored provisionally. But because the genre is a category variable, is should be consider separately.
+
+Next delete the year variable which is not significant and check the AIC to choose our best model.
+
+```{r test, echo = FALSE, eval = TRUE}
+model2 <- glm(score ~ length+budget+votes+genre, data = dat, 
+             family = binomial(link = "logit"))
+summary(model2)
+abc<-step(model2,direction = 'both')
+
+```
+
+The AIC of model2 is 1571.91 and according to the stepwise regression, we can know this model is the best one with a lowest AIC.
+
+$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
+ \widehat{\beta}_{\mbox{1}} \cdot {\mbox{length}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{budget}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{3}} \cdot {\mbox{votes}}_{\mbox{i}}+
+ \widehat{\beta}_{\mbox{4}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+
+```{r table897, echo = FALSE, eval = TRUE }
+modcoefs <- round(coef(model2), 2)
+
+confint(model2) %>%
+  kable()
+
+```
+
+\newpage
+# Conclusions {#sec:Conc}
+
+# Futrue work {#sec:Fut}
+
+# Reference {#sec:REF}
+
+1.Balabantaray S R. Impact of Indian cinema on culture and creation of world view among youth: A sociological analysis of Bollywood movies[J]. Journal of Public Affairs, 2014: e2405.
+
+2.Homan R L. The Everyman movie, circa 1991[J]. Journal of Popular Film and Television, 1997, 25(1): 21-30.
+
+3.Jackson T, Marks N. Consumption, sustainable welfare and human needs—with reference to UK expenditure patterns between 1954 and 1994[J]. Ecological economics, 1999, 28(3): 421-441.
+
+4.Kubrak T. Impact of Films: Changes in Young People’s Attitudes after Watching a Movie[J]. Behavioral Sciences, 2020, 10(5): 86.
+
+5.Peralta V. Extraction and integration of movielens and imdb data[J]. Laboratoire Prisme, Université de Versailles, Versailles, France, 2007.
