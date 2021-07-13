@@ -153,4 +153,238 @@ for(i in c(8, 9)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc
 ```
 
 
+# Exploratory Data Analysis {#sec:EDA}
+```{r table, echo = FALSE}
+#The table of year
+dat %>%
+summarise(name="Year", n=n(),Mean=round(mean(year),digits=1), St.Dev=round(sd(year),digits=1),
+Min=min(year), Q1 = quantile(year,0.25), Median=median(year),
+Q3 = quantile(year,0.75), Max=max(year))-> table1
+
+#The table of length
+dat %>%
+summarise(name="Length", n=n(),Mean=round(mean(length),digits=1), St.Dev=round(sd(length),digits=1),
+Min=min(length), Q1 = quantile(length,0.25), Median=median(length),
+Q3 = quantile(length,0.75), Max=max(length))-> table2
+
+#The table of budget
+dat %>%
+summarise(name="Budget", n=n(),Mean=round(mean(budget),digits=1), St.Dev=round(sd(budget),digits=1),
+Min=min(budget), Q1 = quantile(budget,0.25), Median=median(budget),
+Q3 = quantile(budget,0.75), Max=max(budget))-> table3
+
+#The table of votes
+dat %>%
+summarise(name="Votes", n=n(),Mean=round(mean(votes),digits=1), St.Dev=round(sd(votes),digits=1),
+Min=min(votes), Q1 = quantile(votes,0.25), Median=median(votes),
+Q3 = quantile(votes,0.75), Max=max(votes))-> table4
+
+#The table of rating
+dat %>%
+summarise(name="Rating", n=n(),Mean=round(mean(rating),digits=1), St.Dev=round(sd(rating),digits=1),
+Min=min(rating), Q1 = quantile(rating,0.25), Median=median(rating),
+Q3 = quantile(rating,0.75), Max=max(rating))-> table5
+
+#Combining the two tables
+dplyr::union_all(table1,table2) -> table
+dplyr::union_all(table,table3) -> table
+dplyr::union_all(table,table4) -> table
+dplyr::union_all(table,table5) -> table
+
+table%>%
+  kable(caption = '\\label{tab:summaries} Summary statistics',  align = c("c", "c", "c")) %>%
+kable_styling(latex_options = "hold_position")
+```
+
+Firstly, in order to explore the data, the summary of different variables is necessary, this is the summary table above, we choose five numeric variables to calculate their descriptive statistic, the general analysis of the sample data shows that the total sample size is 3001. The earliest film in the sample was released in 1895, and the latest was released in 2005. The average length of the films was 81.6 minutes, with the shortest being just one minute and the longest 555 minutes. Budgets range from 1.2 million dollars to 23.4 million dollars, and according to the quartile, most films still cost more than 10 million dollars. As can be seen from the standard deviation of the votes, there is a large difference between different films, with the standard deviation reaching 3780.1, while the average value is only 655.8 which means that the number of films that are satisfied by the audience is very small, and the number of films that are reviewed by the majority of the audience is very few. In terms of film rating data, most films are only around 5 out of 10, and the best films are 9.2 while the lowest is only 0.8.
+
+```{r histogram1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyear} Year histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram1 <- ggplot(dat, aes(year,fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram1
+```
+
+Figure 1 is a bar chart which illustrate the number of different kinds of films published in different years from 1890 to 2005. According to the trend in the bar chart, it can be seen that with the increase of years, the number of the sum of all kinds of films kept an increasing trend. And short films was increasing, accounting for a larger proportion, and the proportion of drama was also gradually increasing.The number of documentaries has also begun to increase in recent years, but the proportion is still not high. Action films and comedies have always dominated, while cartoons, after their golden age from 1930 to 1956, now account for a relatively small proportion. In addition, The number of romantic films is always in a small number, indicating that the market of romantic films is still small and unloved by the audience.
+
+```{r histogram2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} Length histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram2 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram2
+```
+
+Figure 2 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
+
+```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram3 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram3
+```
+
+Figure 3 is the relationship between votes and the number of different kinds of films. As the score goes up, the number of films gets smaller and smaller whichever kinds of films they belong to and Very few films score is above 7. According to the trend we can know that the larger number of which kinds of films, the more of that kinds of films can get a high score.
+
+```{r pie1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(greater than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# Barplot
+mytable <- xtabs(~genre+scorename,data=dat)
+table <- data.frame(mytable)
+
+table <- data.frame(table)
+#$labelPosition<-table$Freq
+#table$label<-paste0(table$category,"\n value: ",table$Freq*100,"%")
+
+table%>%
+  filter(scorename=="greater than 7") -> tablenew1
+
+label_value <- paste('(', round(tablenew1$Freq/sum(tablenew1$Freq) * 100, 2), '%)', sep = '')
+label <- paste(tablenew1$genre, label_value, sep = '')
+
+p <- ggplot(data = tablenew1, mapping = aes(x = 'Content', y = Freq, fill = genre)) +
+  geom_bar(stat = 'identity', position = 'stack', width = 1)
+p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
+  theme_pander()+
+  theme(axis.text = element_blank()) + 
+  theme(axis.ticks = element_blank()) + 
+  scale_fill_discrete(labels = label)
+```
+
+Figure 4 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
+
+```{r pie2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(lower than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# Barplot
+mytable <- xtabs(~genre+scorename,data=dat)
+table <- data.frame(mytable)
+
+table <- data.frame(table)
+#$labelPosition<-table$Freq
+#table$label<-paste0(table$category,"\n value: ",table$Freq*100,"%")
+
+table%>%
+  filter(scorename=="lower than 7") -> tablenew2
+
+label_value <- paste('(', round(tablenew2$Freq/sum(tablenew2$Freq) * 100, 2), '%)', sep = '')
+label <- paste(tablenew2$genre, label_value, sep = '')
+
+p <- ggplot(data = tablenew2, mapping = aes(x = 'Content', y = Freq, fill = genre)) +
+  geom_bar(stat = 'identity', position = 'stack', width = 1)
+p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') + 
+  theme_pander()+
+  theme(axis.text = element_blank()) + 
+  theme(axis.ticks = element_blank()) +
+  scale_fill_discrete(labels = label)
+```
+
+Figure 5 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
+
+```{r boxplot1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotyear} Year boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of year
+boxplot1 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=year, fill= genre))+
+  guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="Year")
+boxplot1
+```
+
+```{r boxplot2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} Length boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of length
+boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Length)")
+boxplot2
+```
+
+```{r boxplot3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotbudget} Budget boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of budget
+boxplot3 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=budget, fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="Budget")
+boxplot3
+```
+
+```{r boxplot4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} Votes boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+#boxplot of votes
+boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Votes)")
+boxplot4
+```
+
+Figure 6-9 are box plots between different variables (year, length, budget and votes) and rating levels (lower than 7 or not) of different kinds of films.
+
+```{r line, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:plotline} line plot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+
+```
+
+```{r scatter1, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point8} The relationship of factors related to independent variables",fig.pos = "H"}
+
+Num.cols <- scale(dat[,2:5])
+Cor.data <- cor(Num.cols)
+corrplot(Cor.data, method = 'color')
+corrplot(Cor.data, method = "number")
+```
+
+
+
+```{r corr_matrix, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point00} Correlation matrix of data",fig.pos = "H"}
+### correlation matrix using ggpairs
+ggpairs(scale(dat[,2:5]),
+        upper = list(continuous = "cor", combo = "box_no_facet", discrete = "count", na ="na"),
+        lower = list(continuous = "points", combo = "facethist", discrete = "facetbar", na ="na"),
+        diag = list(continuous = "densityDiag", discrete = "barDiag", na = "naDiag"),
+  params = NULL,)+
+  theme_test()+
+  theme(plot.title = element_text(size = 8,hjust = 0.5, face = "bold"),
+        text = element_text(size = 8,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size = 8,face ="bold"))
+```
+
+Figure 10, Figure 11 and Figure 12 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
+
 
