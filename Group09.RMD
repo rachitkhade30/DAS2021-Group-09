@@ -500,3 +500,6 @@ confint(model2) %>%
 
 ```
 
+\newpage
+# Conclusions {#sec:Conc}
+
