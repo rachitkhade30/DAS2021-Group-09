@@ -405,117 +405,132 @@ ggpairs(scale(dat[,2:5]),
 ```
 
 Figure 11, Figure 12 and Figure 13 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
+
 \newpage
 # Formal Data Analysis {#sec:FDA}
-
-In order to eliminate the impact of dimensional and value range differences among indexes on the results of data analysis, it is necessary to standardize the length,year,budget,votes data
- $${\mbox{x}}_{\mbox{standardize}}=(x-mean(x))/sd(x)$$
-```{r data standardize,echo = FALSE, eval = FALSE}
-###standardize variables 
-dat$length<-(dat$length-mean(dat$length))/sd(dat$length)
-dat$year<-(dat$year-mean(dat$year))/sd(dat$year)
-dat$budget<-(dat$budget-mean(dat$budget))/sd(dat$budget)
-dat$votes<-(dat$votes-mean(dat$votes))/sd(dat$votes)
-head(dat)
-```
-
-
-
-To begin our analyze of happiness score formally, we fit the following linear model to the data.
-
-$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
-\widehat{\beta}_{\mbox{1}} \cdot \widehat{\mbox{year}}(i) +
- \widehat{\beta}_{\mbox{2}} \cdot {\mbox{length}}_{\mbox{i}} +
- \widehat{\beta}_{\mbox{3}} \cdot {\mbox{budget}}_{\mbox{i}} +
- \widehat{\beta}_{\mbox{4}} \cdot {\mbox{votes}}_{\mbox{i}}+
- \widehat{\beta}_{\mbox{5}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
- \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+## The Construction of GLM Model {#sec:GLM}
 ```{r score_class, echo = FALSE, eval = FALSE}
 ### change the class of score from numeric to factor
 dat$score<-as.factor(dat$score)
 ```
 In the pre-processing project, the rating item is divided in to two parts:
-1: Greater than 7
-0: no more than 7 
- 
+$\mathbb{I}_{\mbox{score}}(i)$ is an indicator function such that
+
+$${\mbox{score}}(i)=\left\{
+\begin{array}{ll}
+1 ~~~ \mbox{if score of observations is greater than 7},\\
+0 ~~~ \mbox{if score of observations is lower than 7}.\\
+\end{array}
+\right.$$
+
+we can use a logistic regression model for the probability of acceptance. We first write it down in mathematical notation by letting ${\mbox{p}}_{\mbox{i}} = {\mbox{P}}({\mbox{Y}}_{\mbox{i}}=1)$ denote the probability of acceptance for the applicant. We assume that the ${\mbox{Y}}_{\mbox{i}}$ are independent random variables which follow the Bin$(1,{\mbox{p}}_{\mbox{i}} )$(or Bernoulli $({\mbox{p}}_{\mbox{i}})$ distribution with
+
+$$log[({\mbox{p}}_{\mbox{ij}})/ (1-{\mbox{p}}_{\mbox{ij}})]= \widehat{\alpha} +
+\widehat{\beta}_{\mbox{1}} \cdot \mbox{year}_{\mbox{j}} +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{length}}_{\mbox{j}} +
+\widehat{\beta}_{\mbox{3}} \cdot {\mbox{budget}}_{\mbox{j}} +
+ \widehat{\beta}_{\mbox{4}} \cdot {\mbox{votes}}_{\mbox{j}}+
+\widehat{\beta}_{\mbox{5}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
+
+where
+
+${\mbox{p}}_{\mbox{ij}}$ is the probability of the $j \mbox{th}$th films score is greater than 7 in the $i \mbox{th}$ genre;
+
+the intercept ${\alpha}$ is the mean score for the baseline category of Action genre
+
+$t{\beta}_{\mbox{1-4}}$ is the value of score that changes as the corresponding independent variable changes by one unit;
+
+${\beta}_{\mbox{5}}$ is the difference in the mean score of 6 other genres; 
+
+${\mbox{variables}}_{\mbox{j}}$ is the $j \mbox{th}$ observations of the continuous variables;
+
+and
+
+$\mathbb{I}_{\mbox{genre}}(i)$ is an indicator function such that
+
+$$\mathbb{I}_{\mbox{genre}}(i)=\left\{
+\begin{array}{ll}
+1 ~~~ \mbox{if genre of} ~ j \mbox{th observations belongs to the }{\mbox{genre}}(i),\\
+0 ~~~ \mbox{if genre of} ~ j \mbox{th observations belongs to the genre other than }{\mbox{genre}}(i).\\
+\end{array}
+\right.$$
+
+
+
+Here is the result of the model 
 ```{r first_model, echo = FALSE, eval = TRUE}
-dat[,2:5] <- scale(dat[,2:5])
 model1 <- glm(score ~ year+length+budget+votes+genre, data = dat, 
              family = binomial(link = "logit"))
-summary(model1)
+model1_list <- summ(model1)
+model1_list[1] %>%
+kable(caption = '\\label{tab:reg} Estimates of the parameters from the fitted GLM
+regression model1.') %>%
+kable_styling(latex_options = 'HOLD_position') 
 ```
 
 
-According to the p-value, we can see two variables are not or partly not significant. First is year and the other is genre. Now consider them separately.
+According to the p-value, we can see two variables are not or partly not significant. First is year(p-value of 0.09723) and the other is genre(p-value of genreAnimation is 0.36555 and (p-value of genreRomance is 0.30176) . Now consider them separately.
 
-Firstly, analyze of film score formally, we fit the following general linear model between independent variable year and response variable score.
+## The Selection of GLM Model by Stepwise Regression Approach  {#sec:Sele}
 
-```{r year_score, echo = FALSE, eval = TRUE}
-model_year<-glm(score~year,data = dat,family = binomial(link = "logit"))
-summary(model_year)
-dat_year <- dat %>%
-  select(year,score) %>%
-  mutate(high.score = fitted(model_year))
-ggplot(data = dat_year, aes(x = year, y = high.score)) +
-  geom_smooth(method="glm", 
-              method.args = list(family="binomial"), 
-              se = FALSE) +
-  labs(x = "Year", y = "Probability of score higher than 7")
+We use the method of stepwise regression to choose the best model. And we find that the best one is model1 which contains all independent variables. 
+
+```{r step, echo = FALSE, eval = TRUE}
+logit.step <- step(model1,direction="both")
+summary(logit.step)
 ```
 
-According to the box plot, there seems not a significant difference between the distribution just different variance. So the variable year has no effect on the film score.
+The AIC of model1 is 1571.1 and according to the stepwise regression, we can know this model is the best one with a lowest AIC. But as we mentioned before, two variables(year and genre) are not or partly not significant. However, we find that the AIC of model2 is 1571.9 which is extremely close to the AIC of model1. So we finally  delete the year variable which is not significant and choose the model2 as the best model.
 
-Next, because the variable genre is also a category variable which contains 7 kinds of films: Action, Animation, Comedy, Documentary, Drama and Romance. Therefore it is necessary to consider genre and score as two category variables.
+## Analysis of The Optimal GLM Model{#sec:Sel}
+we finally analysis the result of the The Optimal GLM Model.
 
-```{r genre_score, echo = FALSE, eval = TRUE}
-dat.genre <- dat %>%
-  select(genre, score)
-
-dat %>% 
-  tabyl(score, genre) %>% 
-  adorn_percentages() %>% 
-  adorn_pct_formatting() %>% 
-  adorn_ns() # To show original counts
-```
-
-According the above percentage table, compared with Drama and Action, Comedy, Documentary and Animation tend to get a high score. And in 127 Short film, there is only 1 got a score lower than 7. 
-
-```{r genre_plot, echo = FALSE, eval = TRUE}
-ggplot(dat, aes(x= score,  y = ..prop.., group=genre, fill=genre)) + 
-  geom_bar(position="dodge", stat="count") +
-  labs(y = "Proportion")
-model.genre <- glm(score ~ genre, data = dat, family = binomial(link = "logit"))
-summary(model.genre)
-summary(model.genre)
-```
-
-According to the p-value, the Romance film is not significant but in the percentage table, the number of this kind of film is only 31 which may cause a non-significance problem, so this problem can be ignored provisionally. But because the genre is a category variable, is should be consider separately.
-
-Next delete the year variable which is not significant and check the AIC to choose our best model.
-
-```{r test, echo = FALSE, eval = TRUE}
-model2 <- glm(score ~ length+budget+votes+genre, data = dat, 
-             family = binomial(link = "logit"))
-summary(model2)
-abc<-step(model2,direction = 'both')
-
-```
-
-The AIC of model2 is 1571.91 and according to the stepwise regression, we can know this model is the best one with a lowest AIC.
-
-$$\widehat{\mbox{score}}_{\mbox{i}} = \widehat{\alpha} +
+$$log[({\mbox{p}}_{\mbox{ij}})/ (1-{\mbox{p}}_{\mbox{ij}})]= \widehat{\alpha} +
  \widehat{\beta}_{\mbox{1}} \cdot {\mbox{length}}_{\mbox{i}} +
  \widehat{\beta}_{\mbox{2}} \cdot {\mbox{budget}}_{\mbox{i}} +
  \widehat{\beta}_{\mbox{3}} \cdot {\mbox{votes}}_{\mbox{i}}+
  \widehat{\beta}_{\mbox{4}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
  \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
 
-```{r table897, echo = FALSE, eval = TRUE }
-modcoefs <- round(coef(model2), 2)
+```{r Optimal, echo = FALSE, eval = TRUE}
+model2 <- glm(score ~ length+budget+votes+genre, data = dat, 
+             family = binomial(link = "logit"))
+model2_list <- summ(model2)
+model2_list[1] %>%
+kable(caption = '\\label{tab:reg} Estimates of the parameters from The Optimal GLM Model.',align = c("c", "c", "c")) %>%
+kable_styling(latex_options = 'HOLD_position') 
 
-confint(model2) %>%
-  kable()
 
+odd_ratio<-exp(coef(model2)) ###########Odd ratio 优势比即
+bb<-exp(confint(model2))#####odd ratio 95% CI  优势比的95% CI
+combine<-cbind(odd_ratio,bb)##合并回归系数 优势比 95% CI p值等等
+combine%>%
+kable(caption = '\\label{tab:reg} Estimates of Odds In 95percentage confidence Interval.',align = c("c", "c", "c")) %>%
+kable_styling(latex_options = 'HOLD_position')
+```
+We see from the output that the coefficient for length is negative, indicating a lower score for films with longer length. Similarly the coefficients for  genreAnimation, genreDrama and genreRomance are negative.
+
+To quantify the effect of each of these predictors, we look at odds ratios which can be computed as $exp(\widehat{\beta})$. These are shown in the plot below.
+
+
+```{r optimal plot1, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:line plot} Odds Ratios Plot",fig.pos = "H"}
+p <- plot_model(model2, show.values=TRUE,show.p = TRUE, value.offset = .3)+
+  theme_sjplot()
+p
+```
+We interpret the odds ratios as follows: 
+1. For each minute increase in the length of film, the odds of film score decrease (get multiplied by a factor of 0.94);
+2. For each $1000000 increase in the budget of film, the odds of film score increase (get multiplied by a factor of 1.68);
+3. For each number increase in the votes of film, the odds of film score increase (get multiplied by a factor of 1.00);
+4. Comedy’ odds of score is 27.55 times those of Action; Documentary’ odds of score is 216.79 times those of Action; Drama ’ odds of score is 0.23 times those of Action; Short’ odds of score is 110.27 times those of Action.
+5. Animation’ odds of film score and Romance ’ odds of score is same as those of Action(not significant).
+
+```{r optimal plot2, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:line plot}Predicted Probabilities Of Film Score Plot",fig.pos = "H"}
+plot_model(model2,type="pred",terms="length[all]")+theme_sjplot()
+plot_model(model2,type="pred",terms="budget[all]")+theme_sjplot()
+plot_model(model2,type="pred",terms="votes[all]")+theme_sjplot()
+plot_model(model2,type="pred",terms="genre")+theme_sjplot()
 ```
 
 \newpage
