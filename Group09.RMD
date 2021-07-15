@@ -535,7 +535,15 @@ plot_model(model2,type="pred",terms="genre")+theme_sjplot()
 
 \newpage
 # Conclusions {#sec:Conc}
+IMDB ratings can be considered as a criterion to judge a movie by it's entertainment value. Thus, IMDB ratings might influence the viewer's decision to watch a film or not. Therefore, factors influencing the IMDB ratings may be of atmost priority to film producers.
 
+From the analysis, It can be concluded that factors like length of the movie, budget of the movie and positive votes received by the movie can highly influence IMDB ratings and can determine which movie might get rated above 7 or less. 
+
+Growing time constraints may be a significat reason as to why length of a film may affect its IMDB rating. Audience, nowadays, prefer watching a movie with high entertainment value which gets over within a brief period. Hence, shorter the runtime of a movie, the more likely it is for a movie to get rated greater than 7.
+
+The majesticity of a movie can play a huge role in affecting the ratings of a movie, A visually appealing movie has a higher chance of getting rated more than 7 on IMDB. These visual effects and technicalities may lead to an increasing budget of the movies, consequently making budget as an important predictor of IMDB ratings greater than 7 or less.
+
+Positive votes received by a movie can be a potential feature for forcasting whether or not a movie will gain a rating greater than 7 or not. People tend to consume content which is appealing to everyone. Votes can therefore be an important predictor for IMDB ratings.  
 # Futrue work {#sec:Fut}
 
 # Reference {#sec:REF}
