@@ -86,47 +86,34 @@ The variables are shown in the followed table.
 #table2
 
 ```
-## Objective {#sec:OBJ}
+
 
 ```{r data3436, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='110%',out.width='110%'}
 
 text_tbl <- data.frame(
-  category = c("Dependent variable", "Dependent variable", "Independent variable", "Independent variable", "Independent variable", "Independent variable", "Independent variable"),
-  variable = c(
-    "film.id",
-    "rating", 
-    "year", 
-    "length ", 
-    "budget", 
-    "votes", 
-    "genre" 
-  ),
-  definition = c("The unique identifier for the film
-", "IMDB rating from 0-10
-", "Year of release of the film in cinemas", " Duration (in minutes)
-", "Budget for the films production (in $1000000s)", "Number of positive votes received by viewers
-", "Genre of the film
-"),
-  type = c(
-    "classified variable",
-    "continuous variable", 
-    "continuous variable", 
-    "continuous variable", 
-    "continuous variable", 
-    "continuous variable", 
-    "classified variable"
+  Variable=c("film.id","year","length","budget","votes","genre","rating"),
+  Type=c("Identification variable","Continuous independent variable","Continuous independent variable","Continuous independent variable","Continuous independent variable","Independent Categorical Variable","Response variable"),
+  Description=c("Unique identifier for the film","Year in which the film was released in cinemas","The run-time of the film(in minutes)","Budget required for the film production(in millions)","Number of positive votes received by the viewers","Genre of the film","IMDB Rating from 0-10(10 being the highest)")
   )
-)
 
-kable(text_tbl,caption = '\\label{tab:summaries1} variable definition') %>%
+kable(text_tbl,caption = '\\label{tab:summaries1} Variable description') %>%
   kable_styling(full_width = F,latex_options = "hold_position", font_size = 8) %>%
   column_spec(1, bold = T, border_right = T) %>%
   column_spec(2, width = "6em")%>%
   column_spec(3, width = "10em")
-
-
 ```
+```{r data3434, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='110%',out.width='110%'}
 
+text_tbl <- data.frame(
+Different_Genre = c("Action","Animation","Comedy","Documentary","Drama","Romance","Short")
+)
+
+kable(text_tbl,caption = '\\label{tab:summaries2} Genre') %>%
+  kable_styling(full_width = F,latex_options = "hold_position") %>%
+  column_spec(1, bold = T, border_right = T)
+  
+```
+## Objective {#sec:OBJ}
 
 ### Primary Objective {#sec:PRO}
 
@@ -142,7 +129,7 @@ Analyze the relationship between the six relevant information of the film. They 
 ```{r data2, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='80%',out.width='80%'}
 pos <- coordinates(pos = c(5,5))
 cc <- c("Introduction", "Definition\nAnd\nMethod","Exploratory\nData Analysis",
-        "Formal Data\nAnalysis", "Conclusion","NULL", "NULL"," Pie chat,\nHistogram,\nBoxplot",
+        "Formal Data\nAnalysis", "Conclusion \nand \nFuture Work","NULL", "NULL"," Pie chat,\nHistogram,\nBoxplot",
         "Correlation\nmatrix,\n(GLM) model"," NULL")
 openplotmat(main = "Flow Chart")
 straightarrow(from = pos[1,] ,to = pos[2,],lwd = 2, arr.pos = 0.6)
