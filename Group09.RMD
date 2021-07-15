@@ -145,6 +145,7 @@ for(i in c(8, 9)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc
 
 
 # Exploratory Data Analysis {#sec:EDA}
+## Basic Feature Analysis of Films {#sec:Bas}
 ```{r table, echo = FALSE}
 #The table of year
 dat %>%
@@ -219,8 +220,8 @@ histogram2
 
 Figure 2 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
 
-```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
-histogram3 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogrambudeget} Budeget histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram3 <- ggplot(dat, aes(budget,fill=genre))+geom_histogram()+
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -232,7 +233,27 @@ histogram3 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
 histogram3
 ```
 
-Figure 3 is the relationship between votes and the number of different kinds of films. As the score goes up, the number of films gets smaller and smaller whichever kinds of films they belong to and Very few films score is above 7. According to the trend we can know that the larger number of which kinds of films, the more of that kinds of films can get a high score.
+Figure 3 is the relationship between budget and the number of different kinds of films. It's not difficult to see that this is a bell shape, the film whichever the genres it belongs to, the count will first rise and then fall and reach peak at about 12 million dollars.
+
+```{r histogram4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram4 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram4
+```
+
+Figure 4 is the relationship between votes and the number of different kinds of films. As we can see, it is easily to understand that the higher the positive votes a film get, the fewer it is which means only a small number of films can receive a  positive evaluation from the audience. 
+
+
+
+
+## Characteristic Comparative Analysis of Films with Different Rating {#sec:Char}
 
 ```{r pie1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(greater than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 # Barplot
@@ -258,7 +279,7 @@ p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
   scale_fill_discrete(labels = label)
 ```
 
-Figure 4 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
+Figure 5 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
 
 ```{r pie2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(lower than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 # Barplot
@@ -284,7 +305,7 @@ p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
   scale_fill_discrete(labels = label)
 ```
 
-Figure 5 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
+Figure 6 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
 
 ```{r boxplot1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotyear} Year boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of year
@@ -301,6 +322,8 @@ boxplot1 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=year, fill= genre))+
 boxplot1
 ```
 
+Figure 7 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 in different years. According to the plot we can see something special, almost all kinds of films have a similar distribution compared to themselves whatever their score is(lower than 7 or upper than 7) except for Animation and short. It is easily know that early years' Animation tend to have a higher score. While after 1980, the quality of Animation reduced, a large number of films tend to get scores lower than 7. In addition, Short films also need to be researched because only very few this kind of films before 1950 got lower score (Exclude the outliers) which mean Short films are easy to satisfied audience.
+
 ```{r boxplot2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} Length boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of length
 boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre))+
@@ -315,6 +338,8 @@ boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre
  labs(x="Score", y="log(Length)")
 boxplot2
 ```
+
+Figure 8 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 of different length. We can easily get the information that the shorter the Drama, Romance and Short films are, the higher their scores are.
 
 ```{r boxplot3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotbudget} Budget boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of budget
@@ -331,6 +356,8 @@ boxplot3 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=budget, fill= genre))+
 boxplot3
 ```
 
+In figure 9, we can obviously see that higher budget can make a film get higher score. It is easily to understand that an appearance fee for a well-known actor, cost of special effects production and some other reasons are all in the budget. And these elements can all make an influence to the score.
+
 ```{r boxplot4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} Votes boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of votes
 boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre))+
@@ -346,16 +373,17 @@ boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre)
 boxplot4
 ```
 
-Figure 6-9 are box plots between different variables (year, length, budget and votes) and rating levels (lower than 7 or not) of different kinds of films.
+Figure 10 is also a box plot which shows the distribution of different kinds of films which have scores lower and upper than 7 related to votes. From the plot we can see nothing difference between the high-score films' votes and the lower-score one. Almost all kinds of films have a similar distribution and even a median votes compared to themselves grouped by scores.
 
-```{r line, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:plotline} line plot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+In figure 7-10 we can see some similar phenomenon. First, in all four plots, we can see many outliers which may because the variable score is a very subjective variable. This means no matter how good a movie is, there will always be people who don't like it. Second, the lower-than-7 Short films' distribution is always a "line", which means there are very few short films which got a lower-than-7 score. Third, we can not see an obvious relationship between the four variables (year, length, budget and votes) and the score through the box plot, so the following exploration is necessary.
 
-```
+## Correlation Analysis Between Independent Variables {#sec:Cor}
 
 ```{r scatter1, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point8} The relationship of factors related to independent variables",fig.pos = "H"}
 
 Num.cols <- scale(dat[,2:5])
 Cor.data <- cor(Num.cols)
+par(mfrow = c(1,2))
 corrplot(Cor.data, method = 'color')
 corrplot(Cor.data, method = "number")
 ```
@@ -376,8 +404,7 @@ ggpairs(scale(dat[,2:5]),
         axis.text.x = element_text(size = 8,face ="bold"))
 ```
 
-Figure 10, Figure 11 and Figure 12 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
-
+Figure 11, Figure 12 and Figure 13 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
 \newpage
 # Formal Data Analysis {#sec:FDA}
 
