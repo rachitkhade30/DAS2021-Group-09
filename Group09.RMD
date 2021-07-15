@@ -110,7 +110,7 @@ Different_Genre = c("Action","Animation","Comedy","Documentary","Drama","Romance
 
 kable(text_tbl,caption = '\\label{tab:summaries2} Genre') %>%
   kable_styling(full_width = F,latex_options = "hold_position") %>%
-  column_spec(1, bold = T, border_right = T)
+  column_spec(1, bold = T)
   
 ```
 ## Objective {#sec:OBJ}
@@ -502,9 +502,9 @@ kable(caption = '\\label{tab:reg} Estimates of the parameters from The Optimal G
 kable_styling(latex_options = 'HOLD_position') 
 
 
-odd_ratio<-exp(coef(model2)) ###########Odd ratio 优势比即
-bb<-exp(confint(model2))#####odd ratio 95% CI  优势比的95% CI
-combine<-cbind(odd_ratio,bb)##合并回归系数 优势比 95% CI p值等等
+odd_ratio<-exp(coef(model2)) ###########Odd ratio 
+bb<-exp(confint(model2))#####odd ratio 95% CI 
+combine<-cbind(odd_ratio,bb)
 combine%>%
 kable(caption = '\\label{tab:reg} Estimates of Odds In 95percentage confidence Interval.',align = c("c", "c", "c")) %>%
 kable_styling(latex_options = 'HOLD_position')
