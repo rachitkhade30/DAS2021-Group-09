@@ -43,12 +43,16 @@ library(showtext)
 library(ggnewscale)
 library(gapminder)
 library(janitor)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(Rcpp)
 ```
 
 ```{R data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
 #read the file
 dat<-read.csv("dataset9.csv")
-#add the score column,if rating>7,then 1,else 0
+#add the  column,if rating>7,then 1,else 0
 dat<-mutate(dat,score=ifelse(rating>7,1,0))
 #replace NA with mean value in length column 
 dat$length[is.na(dat$length)]<-mean(dat$length,na.rm = TRUE)
