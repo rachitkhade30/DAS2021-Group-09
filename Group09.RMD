@@ -544,7 +544,18 @@ Growing time constraints may be a significat reason as to why length of a film m
 The majesticity of a movie can play a huge role in affecting the ratings of a movie, A visually appealing movie has a higher chance of getting rated more than 7 on IMDB. These visual effects and technicalities may lead to an increasing budget of the movies, consequently making budget as an important predictor of IMDB ratings greater than 7 or less.
 
 Positive votes received by a movie can be a potential feature for forcasting whether or not a movie will gain a rating greater than 7 or not. People tend to consume content which is appealing to everyone. Votes can therefore be an important predictor for IMDB ratings.  
-# Futrue work {#sec:Fut}
+
+# Future work {#sec:Fut}
+
+Since the movie statistics of IMDB movie database are still missing, and our model has eliminated outliers. In this paper, the rating level of 7 is taken as the standard of good or bad film, but in fact, there is an error in rating. So we left the evaluation of many outliers, the supplement of missing movies, the analysis of multiple databases, and the work of reducing errors to the future. This paper mainly uses a generalized linear model to analyze the data, and future work involves deeper analysis of specific films. In the future work, we mainly have three points:
+
+1. Add rating weights for films from different decades to the model. Because different eras have different cultural styles, a film that is rated less than 7 in one decade could be rated higher than 7 if released in another decade.
+
+2. The total number of movies is missing. In future work, we can try to study several movie databases at the same time and compare and analyze them, so as to avoid a lot of errors.
+
+3. The way to build the model can be changed to more complex logistic regression. And can provide some information analysis about outliers between different images according to different images. In the data that we used as a real example,Analyzing outliers to build models is a tedious task, and no further research can be performed in this direction in the future.
+
+Obviously, in the analysis of films greater than 7, this paper finds that comedies account for 43.54 percent. That's too large a number, so it needs to be validated in order to convince the researchers. Secondly, for films of different eras, outliers mostly appeared before 1950. Whether the rating of that era is valid needs to be explored, because 70 years have passed, and cultural differences will affect the rating level. However, if only comments from 1950 are used as a rating standard, there is a lack of real and effective data on comments. So I think we should do a weighted analysis of films from different eras. The budget of a movie, the length of a movie, the outliers are the same as the chronologies. They should be weighted for different kinds of films, different generations of films. Because the average budget required for different types of films is not consistent. For example, an action blockbuster requires a large budget for setting, special effects, and action, while a comedy usually doesn't. And the budget distribution of the same kind of film varies greatly from generation to generation.
 
 # Reference {#sec:REF}
 
