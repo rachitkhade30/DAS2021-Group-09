@@ -38,7 +38,6 @@ library(moderndive)
 library(ggfortify)
 library(diagram)
 library(ggthemes)
-library(cowplot)
 library(showtext)
 library(ggnewscale)
 library(gapminder)
@@ -47,6 +46,7 @@ library(sjPlot)
 library(stats)
 library(jtools)
 library(Rcpp)
+library(cowplot)
 ```
 
 ```{R data, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE}
@@ -96,19 +96,20 @@ text_tbl <- data.frame(
   Description=c("Unique identifier for the film","Year in which the film was released in cinemas","The run-time of the film(in minutes)","Budget required for the film production(in millions)","Number of positive votes received by the viewers","Genre of the film","IMDB Rating from 0-10(10 being the highest)")
   )
 
-kable(text_tbl,caption = '\\label{tab:summaries1} Variable description') %>%
+kable(text_tbl,caption = '\\label{tab:summaries1} Variable description',  align = c("c", "c", "c")) %>%
   kable_styling(full_width = F,latex_options = "hold_position", font_size = 8) %>%
   column_spec(1, bold = T, border_right = T) %>%
   column_spec(2, width = "6em")%>%
   column_spec(3, width = "10em")
 ```
+
 ```{r data3434, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='110%',out.width='110%'}
 
 text_tbl <- data.frame(
 Different_Genre = c("Action","Animation","Comedy","Documentary","Drama","Romance","Short")
 )
 
-kable(text_tbl,caption = '\\label{tab:summaries2} Genre') %>%
+kable(text_tbl,caption = '\\label{tab:summaries2} Genre',  align = c("c", "c", "c")) %>%
   kable_styling(full_width = F,latex_options = "hold_position") %>%
   column_spec(1, bold = T)
   
@@ -143,9 +144,21 @@ for(i in c(1, 2, 3, 4, 5)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0
 for(i in c(8, 9)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc[i],cex=0.8)
 ```
 
-
 # Exploratory Data Analysis {#sec:EDA}
 ## Basic Feature Analysis of Films {#sec:Bas}
+First we perform a visual analysis of the data. Here is the data from dataset9. 
+```{r head,echo=FALSE}
+#The table of visualization of part of the data
+dat.1<-dat %>%
+  select(year,length,budget,votes,genre,rating) #exclude the useless variable film.id
+head(dat.1) -> table # put the part of visual data into table
+# Set table parameters
+table%>%
+  kable(caption = '\\label{tab:head} Visualization of part of the data',  align = c("c", "c", "c")) %>%
+kable_styling(latex_options = "hold_position")
+```
+
+Then we summary this dataset.
 ```{r table, echo = FALSE}
 #The table of year
 dat %>%
@@ -203,10 +216,10 @@ histogram1 <- ggplot(dat, aes(year,fill=genre))+geom_histogram()+
 histogram1
 ```
 
-Figure 1 is a bar chart which illustrate the number of different kinds of films published in different years from 1890 to 2005. According to the trend in the bar chart, it can be seen that with the increase of years, the number of the sum of all kinds of films kept an increasing trend. And short films was increasing, accounting for a larger proportion, and the proportion of drama was also gradually increasing.The number of documentaries has also begun to increase in recent years, but the proportion is still not high. Action films and comedies have always dominated, while cartoons, after their golden age from 1930 to 1956, now account for a relatively small proportion. In addition, The number of romantic films is always in a small number, indicating that the market of romantic films is still small and unloved by the audience.
+Figure 1 is a bar chart which illustrate the number of different kinds of films published in different years from 1890 to 2005. According to the trend in the bar chart, it can be seen that with the increase of years, the number of the sum of all kinds of films kept an increasing trend. And short films was increasing, accounting for a larger proportion, and the proportion of drama was also gradually increasing.The number of documentaries has also begun to increase in recent years, but the proportion is still not high. Action films and comedies have always dominated, while animations, after their golden age from 1930 to 1956, now account for a relatively small proportion. In addition, The number of romantic films is always in a small number, indicating that the market of romantic films is still small and unloved by the audience.
 
-```{r histogram2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} Length histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
-histogram2 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
+```{r histogram21, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} Length histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram21 <- ggplot(dat, aes(length,fill=genre))+geom_histogram()+
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -215,10 +228,25 @@ histogram2 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
         text = element_text(size = 10,face = "bold",hjust = 0.5),
         axis.title.y = element_text(face = "bold",hjust = 0.5),
         axis.text.x = element_text(size =10,face ="bold"))
-histogram2
+histogram21
 ```
 
-Figure 2 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
+Because the data have many outliers(which is much larger) in the length variables, so we do the log transformation of this variable and then draw a histograms with the log(length).
+
+```{r histogram22, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} log(Length) histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+histogram22 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram22
+```
+
+so after comparing the Figure 2 using data without transforming into log and the Figure 2 using data with transforming into log, We think the later is better. We find that  Figure 3 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
 
 ```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogrambudeget} Budeget histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 histogram3 <- ggplot(dat, aes(budget,fill=genre))+geom_histogram()+
@@ -233,22 +261,37 @@ histogram3 <- ggplot(dat, aes(budget,fill=genre))+geom_histogram()+
 histogram3
 ```
 
-Figure 3 is the relationship between budget and the number of different kinds of films. It's not difficult to see that this is a bell shape, the film whichever the genres it belongs to, the count will first rise and then fall and reach peak at about 12 million dollars.
+Figure 4 is the relationship between budget and the number of different kinds of films. It's not difficult to see that this is a bell shape, the film whichever the genres it belongs to, the count will first rise and then fall and reach peak at about 12 million dollars.
 
-```{r histogram4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
-histogram4 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+```{r histogram41, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='120%',out.width='75%',fig.pos = 'H'}
+histogram41 <- ggplot(dat, aes(votes,fill=genre))+geom_histogram()+
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
   guides(fill=guide_legend())+ 
   theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
         text = element_text(size = 10,face = "bold",hjust = 0.5),
-        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.title.y = element_text(size = 10,face = "bold",hjust = 0.5),
         axis.text.x = element_text(size =10,face ="bold"))
-histogram4
+histogram41
 ```
 
-Figure 4 is the relationship between votes and the number of different kinds of films. As we can see, it is easily to understand that the higher the positive votes a film get, the fewer it is which means only a small number of films can receive a  positive evaluation from the audience. 
+Because the data are located near zero and have many outliers(which is much larger) in the votes variables, so we do the log transformation of this variable and then draw a histograms with the log(votes).
+
+```{r histogram42, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} log(Votes) histogram",out.heighth='120%',out.width='75%',fig.pos = 'H'}
+histogram42 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
+  guides(fill = FALSE) +
+  theme_economist() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(size =10,face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))
+histogram42
+```
+
+So after comparing the Figure 5 using data without transforming into log and the Figure 6 using data with transforming into log, We think the later is better.Figure 6 is the relationship between votes and the number of different kinds of films. As we can see, it is easily to understand that the higher the positive votes a film get, the fewer it is which means only a small number of films can receive a  positive evaluation from the audience. 
 
 
 
@@ -279,7 +322,7 @@ p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
   scale_fill_discrete(labels = label)
 ```
 
-Figure 5 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
+Figure 7 is a pie plot which shows the proportion of different kinds of films that get a score higher than 7. We can know that the Comedy, Documentary and Animation are the top 3 kinds of films which account for 43.54%, 15.5% and 12.73% respectively.
 
 ```{r pie2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig: piegenre} genre pie chat(lower than 7) ",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 # Barplot
@@ -305,7 +348,7 @@ p + coord_polar(theta = 'y') + labs(x = '', y = '', title = '') +
   scale_fill_discrete(labels = label)
 ```
 
-Figure 6 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
+Figure 8 is a pie plot which shows the proportion of different kinds of films that get a score lower than 7. According to the plot we can see that the Drama and Action almost account for 80.52%.
 
 ```{r boxplot1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotyear} Year boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of year
@@ -322,11 +365,11 @@ boxplot1 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=year, fill= genre))+
 boxplot1
 ```
 
-Figure 7 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 in different years. According to the plot we can see something special, almost all kinds of films have a similar distribution compared to themselves whatever their score is(lower than 7 or upper than 7) except for Animation and short. It is easily know that early years' Animation tend to have a higher score. While after 1980, the quality of Animation reduced, a large number of films tend to get scores lower than 7. In addition, Short films also need to be researched because only very few this kind of films before 1950 got lower score (Exclude the outliers) which mean Short films are easy to satisfied audience.
+Figure 9 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 in different years. According to the plot we can see something special, almost all kinds of films have a similar distribution compared to themselves whatever their score is(lower than 7 or upper than 7) except for Animation and short. It is easily know that early years' Animation tend to have a higher score. While after 1980, the quality of Animation reduced, a large number of films tend to get scores lower than 7. In addition, Short films also need to be researched because only very few this kind of films before 1950 got lower score (Exclude the outliers) which mean Short films are easy to satisfied audience.
 
-```{r boxplot2, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} Length boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+```{r boxplot21, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} Length boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of length
-boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre))+
+boxplot21 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=length, fill= genre))+
     guides(fill = FALSE) +
   theme_wsj() +
   scale_fill_gdocs()+
@@ -336,10 +379,25 @@ boxplot2 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre
         axis.title.y = element_text(face = "bold",hjust = 0.5),
         axis.text.x = element_text(size =10,face ="bold"))+
  labs(x="Score", y="log(Length)")
-boxplot2
+boxplot21
+```
+Because the data  have many outliers(which is much larger) in the length variables, so we do the log transformation of this variable and then draw a histograms with the log(length).
+
+```{r boxplot22, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotlength} log(Length) boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+boxplot22 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(length), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Length)")
+boxplot22
 ```
 
-Figure 8 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 of different length. We can easily get the information that the shorter the Drama, Romance and Short films are, the higher their scores are.
+So after comparing the Figure 10 using data without transforming into log and the Figure 11 using data with transforming into log, We think the later is better. Figure 11 is a box plot shows the distribution of different kinds of films which have scores lower and upper than 7 of different length. We can easily get the information that the shorter the Drama, Romance and Short films are, the higher their scores are.
 
 ```{r boxplot3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotbudget} Budget boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of budget
@@ -356,11 +414,11 @@ boxplot3 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=budget, fill= genre))+
 boxplot3
 ```
 
-In figure 9, we can obviously see that higher budget can make a film get higher score. It is easily to understand that an appearance fee for a well-known actor, cost of special effects production and some other reasons are all in the budget. And these elements can all make an influence to the score.
+In figure 12, we can obviously see that higher budget can make a film get higher score. It is easily to understand that an appearance fee for a well-known actor, cost of special effects production and some other reasons are all in the budget. And these elements can all make an influence to the score.
 
-```{r boxplot4, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} Votes boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+```{r boxplot41, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} Votes boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
 #boxplot of votes
-boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre))+
+boxplot41 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=votes, fill= genre))+
     guides(fill = FALSE) +
   theme_wsj() +
   scale_fill_gdocs()+
@@ -370,18 +428,34 @@ boxplot4 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre)
         axis.title.y = element_text(face = "bold",hjust = 0.5),
         axis.text.x = element_text(size =10,face ="bold"))+
  labs(x="Score", y="log(Votes)")
-boxplot4
+boxplot41
+```
+Because the data  have many outliers(which is much larger) in the votes variables, so we do the log transformation of this variable and then draw a histograms with the log(votes).
+
+```{r boxplot42, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:boxplotvotes} log(Votes) boxplot",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+boxplot42 <- ggplot(dat)+geom_boxplot(aes(x=scorename, y=log(votes), fill= genre))+
+    guides(fill = FALSE) +
+  theme_wsj() +
+  scale_fill_gdocs()+
+  guides(fill=guide_legend())+ 
+  theme(plot.title = element_text(size = 10,hjust = 0.5, face = "bold"),
+        text = element_text(size = 10,face = "bold",hjust = 0.5),
+        axis.title.y = element_text(face = "bold",hjust = 0.5),
+        axis.text.x = element_text(size =10,face ="bold"))+
+ labs(x="Score", y="log(Votes)")
+boxplot42
 ```
 
-Figure 10 is also a box plot which shows the distribution of different kinds of films which have scores lower and upper than 7 related to votes. From the plot we can see nothing difference between the high-score films' votes and the lower-score one. Almost all kinds of films have a similar distribution and even a median votes compared to themselves grouped by scores.
+So after comparing the Figure 13 using data without transforming into log and the Figure 14 using data with transforming into log, We think the later is better.Figure 14 is also a box plot which shows the distribution of different kinds of films which have scores lower and upper than 7 related to votes. From the plot we can see nothing difference between the high-score films' votes and the lower-score one. Almost all kinds of films have a similar distribution and even a median votes compared to themselves grouped by scores.
 
-In figure 7-10 we can see some similar phenomenon. First, in all four plots, we can see many outliers which may because the variable score is a very subjective variable. This means no matter how good a movie is, there will always be people who don't like it. Second, the lower-than-7 Short films' distribution is always a "line", which means there are very few short films which got a lower-than-7 score. Third, we can not see an obvious relationship between the four variables (year, length, budget and votes) and the score through the box plot, so the following exploration is necessary.
+In above figures, we can see some similar phenomenon. First, in all four plots, we can see many outliers which may because the variable score is a very subjective variable. This means no matter how good a movie is, there will always be people who don't like it. Second, the lower-than-7 Short films' distribution is always a "line", which means there are very few short films which got a lower-than-7 score. Third, we can not see an obvious relationship between the four variables (year, length, budget and votes) and the score through the box plot, so the following exploration is necessary.
 
 ## Correlation Analysis Between Independent Variables {#sec:Cor}
+According to previous studies(histogram and boxplot), we find that it is necessary to change votes and length into log(votes) and log(length) to reduce outliers. So we use the log(votes) and log(length) in the correlation analysis.
 
 ```{r scatter1, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point8} The relationship of factors related to independent variables",fig.pos = "H"}
-
-Num.cols <- scale(dat[,2:5])
+Num.cols <- cbind(dat[,2],log(dat[,3]),dat[,4],log(dat[,5]))
+colnames(Num.cols ) <- c("year","log(length)","budget","log(votes)")
 Cor.data <- cor(Num.cols)
 par(mfrow = c(1,2))
 corrplot(Cor.data, method = 'color')
@@ -392,7 +466,7 @@ corrplot(Cor.data, method = "number")
 
 ```{r corr_matrix, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:point00} Correlation matrix of data",fig.pos = "H"}
 ### correlation matrix using ggpairs
-ggpairs(scale(dat[,2:5]),
+ggpairs(Num.cols ,
         upper = list(continuous = "cor", combo = "box_no_facet", discrete = "count", na ="na"),
         lower = list(continuous = "points", combo = "facethist", discrete = "facetbar", na ="na"),
         diag = list(continuous = "densityDiag", discrete = "barDiag", na = "naDiag"),
@@ -404,11 +478,13 @@ ggpairs(scale(dat[,2:5]),
         axis.text.x = element_text(size = 8,face ="bold"))
 ```
 
-Figure 11, Figure 12 and Figure 13 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
+Figure 15 and Figure 16 are the correlation coefficient between the variables year, length, budget and votes. According to the correlation matrix, we can see that these variables are not very related to each other which means we should not consider the multicollinearity problem in the following data analysis.
 
 \newpage
 # Formal Data Analysis {#sec:FDA}
 ## The Construction of GLM Model {#sec:GLM}
+According to previous studies(histogram and boxplot), we find that it is necessary to change votes and length into log(votes) and log(length) to reduce outliers. So we use the log(votes) and log(length) in the Formal Data Analysis analysis.
+
 ```{r score_class, echo = FALSE, eval = FALSE}
 ### change the class of score from numeric to factor
 dat$score<-as.factor(dat$score)
@@ -427,9 +503,9 @@ we can use a logistic regression model for the probability of acceptance. We fir
 
 $$log[({\mbox{p}}_{\mbox{ij}})/ (1-{\mbox{p}}_{\mbox{ij}})]= \widehat{\alpha} +
 \widehat{\beta}_{\mbox{1}} \cdot \mbox{year}_{\mbox{j}} +
- \widehat{\beta}_{\mbox{2}} \cdot {\mbox{length}}_{\mbox{j}} +
+ \widehat{\beta}_{\mbox{2}} \cdot {\mbox{log(length)}}_{\mbox{j}} +
 \widehat{\beta}_{\mbox{3}} \cdot {\mbox{budget}}_{\mbox{j}} +
- \widehat{\beta}_{\mbox{4}} \cdot {\mbox{votes}}_{\mbox{j}}+
+ \widehat{\beta}_{\mbox{4}} \cdot {\mbox{log(votes)}}_{\mbox{j}}+
 \widehat{\beta}_{\mbox{5}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
  \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
 
@@ -460,7 +536,7 @@ $$\mathbb{I}_{\mbox{genre}}(i)=\left\{
 
 Here is the result of the model 
 ```{r first_model, echo = FALSE, eval = TRUE}
-model1 <- glm(score ~ year+length+budget+votes+genre, data = dat, 
+model1 <- glm(score ~ year+log(length)+budget+log(votes)+genre, data = dat, 
              family = binomial(link = "logit"))
 model1_list <- summ(model1)
 model1_list[1] %>%
@@ -470,7 +546,7 @@ kable_styling(latex_options = 'HOLD_position')
 ```
 
 
-According to the p-value, we can see two variables are not or partly not significant. First is year(p-value of 0.09723) and the other is genre(p-value of genreAnimation is 0.36555 and (p-value of genreRomance is 0.30176) . Now consider them separately.
+According to the p-value, we can see two variables are not or partly not significant. First is year(p-value of 	0.2749860) , second is log(votes)(p-value of 0.9373484) and last is genre(p-value of genreRomance is 0.2265949).
 
 ## The Selection of GLM Model by Stepwise Regression Approach  {#sec:Sele}
 
@@ -481,20 +557,19 @@ logit.step <- step(model1,direction="both")
 summary(logit.step)
 ```
 
-The AIC of model1 is 1571.1 and according to the stepwise regression, we can know this model is the best one with a lowest AIC. But as we mentioned before, two variables(year and genre) are not or partly not significant. However, we find that the AIC of model2 is 1571.9 which is extremely close to the AIC of model1. So we finally  delete the year variable which is not significant and choose the model2 as the best model.
+The AIC of model3(with independent variables of log(length), budget and genre) is 1542.3 and according to the stepwise regression, we can know this model is the best one with a lowest AIC. So we choose this moodle.
 
 ## Analysis of The Optimal GLM Model{#sec:Sel}
 we finally analysis the result of the The Optimal GLM Model.
 
 $$log[({\mbox{p}}_{\mbox{ij}})/ (1-{\mbox{p}}_{\mbox{ij}})]= \widehat{\alpha} +
- \widehat{\beta}_{\mbox{1}} \cdot {\mbox{length}}_{\mbox{i}} +
+ \widehat{\beta}_{\mbox{1}} \cdot {\mbox{log(length)}}_{\mbox{i}} +
  \widehat{\beta}_{\mbox{2}} \cdot {\mbox{budget}}_{\mbox{i}} +
- \widehat{\beta}_{\mbox{3}} \cdot {\mbox{votes}}_{\mbox{i}}+
- \widehat{\beta}_{\mbox{4}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
+ \widehat{\beta}_{\mbox{3}} \cdot \mathbb{I}_{\mbox{genre}}(i)+ 
  \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
 
 ```{r Optimal, echo = FALSE, eval = TRUE}
-model2 <- glm(score ~ length+budget+votes+genre, data = dat, 
+model2 <- glm(score ~ log(length)+budget+genre, data = dat, 
              family = binomial(link = "logit"))
 model2_list <- summ(model2)
 model2_list[1] %>%
@@ -520,16 +595,14 @@ p <- plot_model(model2, show.values=TRUE,show.p = TRUE, value.offset = .3)+
 p
 ```
 We interpret the odds ratios as follows: 
-1. For each minute increase in the length of film, the odds of film score decrease (get multiplied by a factor of 0.94);
-2. For each $1000000 increase in the budget of film, the odds of film score increase (get multiplied by a factor of 1.68);
-3. For each number increase in the votes of film, the odds of film score increase (get multiplied by a factor of 1.00);
-4. Comedy’ odds of score is 27.55 times those of Action; Documentary’ odds of score is 216.79 times those of Action; Drama ’ odds of score is 0.23 times those of Action; Short’ odds of score is 110.27 times those of Action.
-5. Animation’ odds of film score and Romance ’ odds of score is same as those of Action(not significant).
+1. For each minute increase in the log(length) of film, the odds of film score decrease (get multiplied by a factor of 0.05);
+2. For each $1000000 increase in the budget of film, the odds of film score increase (get multiplied by a factor of 1.71);
+3. Animation’ odds of score is 0.07 times those of Action; Comedy’ odds of score is 24.64 times those of Action; Documentary’ odds of score is 174.89 times those of Action; Drama ’ odds of score is 0.17 times those of Action; Short’ odds of score is 79.59 times those of Action;
+4. Romance ’ odds of score is same as those of Action(not significant).
 
 ```{r optimal plot2, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:line plot}Predicted Probabilities Of Film Score Plot",fig.pos = "H"}
 plot_model(model2,type="pred",terms="length[all]")+theme_sjplot()
 plot_model(model2,type="pred",terms="budget[all]")+theme_sjplot()
-plot_model(model2,type="pred",terms="votes[all]")+theme_sjplot()
 plot_model(model2,type="pred",terms="genre")+theme_sjplot()
 ```
 
@@ -537,7 +610,7 @@ plot_model(model2,type="pred",terms="genre")+theme_sjplot()
 # Conclusions {#sec:Conc}
 IMDB ratings can be considered as a criterion to judge a movie by it's entertainment value. Thus, IMDB ratings might influence the viewer's decision to watch a film or not. Therefore, factors influencing the IMDB ratings may be of atmost priority to film producers.
 
-From the analysis, It can be concluded that factors like length of the movie, budget of the movie and positive votes received by the movie can highly influence IMDB ratings and can determine which movie might get rated above 7 or less. 
+From the analysis, It can be concluded that factors like length of the movie, budget of the movie received by the movie can highly influence IMDB ratings and can determine which movie might get rated above 7 or less. 
 
 Growing time constraints may be a significat reason as to why length of a film may affect its IMDB rating. Audience, nowadays, prefer watching a movie with high entertainment value which gets over within a brief period. Hence, shorter the runtime of a movie, the more likely it is for a movie to get rated greater than 7.
 
@@ -568,3 +641,4 @@ Obviously, in the analysis of films greater than 7, this paper finds that comedi
 4.Kubrak T. Impact of Films: Changes in Young People’s Attitudes after Watching a Movie[J]. Behavioral Sciences, 2020, 10(5): 86.
 
 5.Peralta V. Extraction and integration of movielens and imdb data[J]. Laboratoire Prisme, Université de Versailles, Versailles, France, 2007.
+
