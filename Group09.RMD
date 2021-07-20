@@ -89,13 +89,13 @@ The variables are shown in the followed table.
 
 
 ```{r data3436, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='110%',out.width='110%'}
-
+#remane the variables
 text_tbl <- data.frame(
   Variable=c("film.id","year","length","budget","votes","genre","rating"),
   Type=c("Identification variable","Continuous independent variable","Continuous independent variable","Continuous independent variable","Continuous independent variable","Independent Categorical Variable","Response variable"),
   Description=c("Unique identifier for the film","Year in which the film was released in cinemas","The run-time of the film(in minutes)","Budget required for the film production(in millions)","Number of positive votes received by the viewers","Genre of the film","IMDB Rating from 0-10(10 being the highest)")
   )
-
+#summarise the variable and produce the table
 kable(text_tbl,caption = '\\label{tab:summaries1} Variable description',  align = c("c", "c", "c")) %>%
   kable_styling(full_width = F,latex_options = "hold_position", font_size = 8) %>%
   column_spec(1, bold = T, border_right = T) %>%
@@ -128,6 +128,7 @@ Analyze the relationship between the six relevant information of the film. They 
 ## Work-flow {#sec:FLOW}
 
 ```{r data2, echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE,out.heighth='80%',out.width='80%'}
+#produce flow chart
 pos <- coordinates(pos = c(5,5))
 cc <- c("Introduction", "Definition\nAnd\nMethod","Exploratory\nData Analysis",
         "Formal Data\nAnalysis", "Conclusion \nand \nFuture Work","NULL", "NULL"," Pie chat,\nHistogram,\nBoxplot",
@@ -146,7 +147,7 @@ for(i in c(8, 9)) textrect(pos[i,],radx = 0.08,rady = 0.1,shadow.size=0,lab = cc
 
 # Exploratory Data Analysis {#sec:EDA}
 ## Basic Feature Analysis of Films {#sec:Bas}
-First we perform a visual analysis of the data. Here is the data from dataset9. 
+First we perform a visual analysis of the data. Here is part of the data from dataset9. 
 ```{r head,echo=FALSE}
 #The table of visualization of part of the data
 dat.1<-dat %>%
@@ -164,31 +165,31 @@ Then we summary this dataset.
 dat %>%
 summarise(name="Year", n=n(),Mean=round(mean(year),digits=1), St.Dev=round(sd(year),digits=1),
 Min=min(year), Q1 = quantile(year,0.25), Median=median(year),
-Q3 = quantile(year,0.75), Max=max(year))-> table1
+Q3 = quantile(year,0.75), Max=max(year))-> table1 # put Descriptive statistics of variable year into table1
 
 #The table of length
 dat %>%
 summarise(name="Length", n=n(),Mean=round(mean(length),digits=1), St.Dev=round(sd(length),digits=1),
 Min=min(length), Q1 = quantile(length,0.25), Median=median(length),
-Q3 = quantile(length,0.75), Max=max(length))-> table2
+Q3 = quantile(length,0.75), Max=max(length))-> table2 # put Descriptive statistics of variable length into table1
 
 #The table of budget
 dat %>%
 summarise(name="Budget", n=n(),Mean=round(mean(budget),digits=1), St.Dev=round(sd(budget),digits=1),
 Min=min(budget), Q1 = quantile(budget,0.25), Median=median(budget),
-Q3 = quantile(budget,0.75), Max=max(budget))-> table3
+Q3 = quantile(budget,0.75), Max=max(budget))-> table3 # put Descriptive statistics of variable budget into table1
 
 #The table of votes
 dat %>%
 summarise(name="Votes", n=n(),Mean=round(mean(votes),digits=1), St.Dev=round(sd(votes),digits=1),
 Min=min(votes), Q1 = quantile(votes,0.25), Median=median(votes),
-Q3 = quantile(votes,0.75), Max=max(votes))-> table4
+Q3 = quantile(votes,0.75), Max=max(votes))-> table4 # put Descriptive statistics of variable votes into table1
 
 #The table of rating
 dat %>%
 summarise(name="Rating", n=n(),Mean=round(mean(rating),digits=1), St.Dev=round(sd(rating),digits=1),
 Min=min(rating), Q1 = quantile(rating,0.25), Median=median(rating),
-Q3 = quantile(rating,0.75), Max=max(rating))-> table5
+Q3 = quantile(rating,0.75), Max=max(rating))-> table5 # put Descriptive statistics of variable rating into table1
 
 #Combining the two tables
 dplyr::union_all(table1,table2) -> table
@@ -196,6 +197,7 @@ dplyr::union_all(table,table3) -> table
 dplyr::union_all(table,table4) -> table
 dplyr::union_all(table,table5) -> table
 
+# Set table parameters
 table%>%
   kable(caption = '\\label{tab:summaries} Summary statistics',  align = c("c", "c", "c")) %>%
 kable_styling(latex_options = "hold_position")
@@ -204,7 +206,9 @@ kable_styling(latex_options = "hold_position")
 Firstly, in order to explore the data, the summary of different variables is necessary, this is the summary table above, we choose five numeric variables to calculate their descriptive statistic, the general analysis of the sample data shows that the total sample size is 3001. The earliest film in the sample was released in 1895, and the latest was released in 2005. The average length of the films was 81.6 minutes, with the shortest being just one minute and the longest 555 minutes. Budgets range from 1.2 million dollars to 23.4 million dollars, and according to the quartile, most films still cost more than 10 million dollars. As can be seen from the standard deviation of the votes, there is a large difference between different films, with the standard deviation reaching 3780.1, while the average value is only 655.8 which means that the number of films that are satisfied by the audience is very small, and the number of films that are reviewed by the majority of the audience is very few. In terms of film rating data, most films are only around 5 out of 10, and the best films are 9.2 while the lowest is only 0.8.
 
 ```{r histogram1, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyear} Year histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
-histogram1 <- ggplot(dat, aes(year,fill=genre))+geom_histogram()+
+# use year as the independent variable separated by different genre create a histogram
+histogram1 <- ggplot(dat, aes(year,fill=genre))+geom_histogram()+ 
+  # Set histogram parameters
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -219,7 +223,9 @@ histogram1
 Figure 1 is a bar chart which illustrate the number of different kinds of films published in different years from 1890 to 2005. According to the trend in the bar chart, it can be seen that with the increase of years, the number of the sum of all kinds of films kept an increasing trend. And short films was increasing, accounting for a larger proportion, and the proportion of drama was also gradually increasing.The number of documentaries has also begun to increase in recent years, but the proportion is still not high. Action films and comedies have always dominated, while animations, after their golden age from 1930 to 1956, now account for a relatively small proportion. In addition, The number of romantic films is always in a small number, indicating that the market of romantic films is still small and unloved by the audience.
 
 ```{r histogram21, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} Length histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# use length as the independent variable separated by different genre create a histogram
 histogram21 <- ggplot(dat, aes(length,fill=genre))+geom_histogram()+
+  # Set histogram parameters
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -234,6 +240,7 @@ histogram21
 Because the data have many outliers(which is much larger) in the length variables, so we do the log transformation of this variable and then draw a histograms with the log(length).
 
 ```{r histogram22, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramyLength} log(Length) histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# redo the forward operation after standardize the variable length
 histogram22 <- ggplot(dat, aes(log(length),fill=genre))+geom_histogram()+
   guides(fill = FALSE) +
   theme_economist() +
@@ -249,7 +256,9 @@ histogram22
 so after comparing the Figure 2 using data without transforming into log and the Figure 2 using data with transforming into log, We think the later is better. We find that  Figure 3 describe the number of different kinds of films related to the length. According to the bar chart, the log(length) of a large number of films are located between 4 and 5(about 55.5 to 151.6 minutes). Almost all length of Short films and Animation films are under 55.5 minutes while Action films are mostly above 55.5 minutes. In addition, Drama and Comedies have different length interval.
 
 ```{r histogram3, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogrambudeget} Budeget histogram",out.heighth='75%',out.width='75%',fig.pos = 'H'}
+# use budget as the independent variable separated by different genre create a histogram
 histogram3 <- ggplot(dat, aes(budget,fill=genre))+geom_histogram()+
+  # Set histogram parameters
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -264,7 +273,9 @@ histogram3
 Figure 4 is the relationship between budget and the number of different kinds of films. It's not difficult to see that this is a bell shape, the film whichever the genres it belongs to, the count will first rise and then fall and reach peak at about 12 million dollars.
 
 ```{r histogram41, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} Votes histogram",out.heighth='120%',out.width='75%',fig.pos = 'H'}
+# use votes as the independent variable separated by different genre create a histogram
 histogram41 <- ggplot(dat, aes(votes,fill=genre))+geom_histogram()+
+  # Set histogram parameters
   guides(fill = FALSE) +
   theme_economist() +
   scale_fill_gdocs()+
@@ -279,6 +290,7 @@ histogram41
 Because the data are located near zero and have many outliers(which is much larger) in the votes variables, so we do the log transformation of this variable and then draw a histograms with the log(votes).
 
 ```{r histogram42, echo = FALSE, eval = TRUE,fig.align = "center", fig.cap = "\\label{fig:histogramVotes} log(Votes) histogram",out.heighth='120%',out.width='75%',fig.pos = 'H'}
+# redo the forward operation after standardize the variable votes
 histogram42 <- ggplot(dat, aes(log(votes),fill=genre))+geom_histogram()+
   guides(fill = FALSE) +
   theme_economist() +
@@ -536,6 +548,7 @@ $$\mathbb{I}_{\mbox{genre}}(i)=\left\{
 
 Here is the result of the model 
 ```{r first_model, echo = FALSE, eval = TRUE}
+#fit a glm model
 model1 <- glm(score ~ year+log(length)+budget+log(votes)+genre, data = dat, 
              family = binomial(link = "logit"))
 model1_list <- summ(model1)
@@ -553,6 +566,7 @@ According to the p-value, we can see two variables are not or partly not signifi
 We use the method of stepwise regression to choose the best model. And we find that the best one is model1 which contains all independent variables. 
 
 ```{r step, echo = FALSE, eval = TRUE}
+#use stepwise find the lowest AIC model
 logit.step <- step(model1,direction="both")
 summary(logit.step)
 ```
@@ -569,6 +583,7 @@ $$log[({\mbox{p}}_{\mbox{ij}})/ (1-{\mbox{p}}_{\mbox{ij}})]= \widehat{\alpha} +
  \epsilon_i, ~~~~ \epsilon_i \sim N(0, \sigma^2)$$
 
 ```{r Optimal, echo = FALSE, eval = TRUE}
+#fit a final glm model
 model2 <- glm(score ~ log(length)+budget+genre, data = dat, 
              family = binomial(link = "logit"))
 model2_list <- summ(model2)
@@ -597,8 +612,8 @@ p
 We interpret the odds ratios as follows: 
 1. For each minute increase in the log(length) of film, the odds of film score decrease (get multiplied by a factor of 0.05);
 2. For each $1000000 increase in the budget of film, the odds of film score increase (get multiplied by a factor of 1.71);
-3. Animation’ odds of score is 0.07 times those of Action; Comedy’ odds of score is 24.64 times those of Action; Documentary’ odds of score is 174.89 times those of Action; Drama ’ odds of score is 0.17 times those of Action; Short’ odds of score is 79.59 times those of Action;
-4. Romance ’ odds of score is same as those of Action(not significant).
+3. Animation??? odds of score is 0.07 times those of Action; Comedy??? odds of score is 24.64 times those of Action; Documentary??? odds of score is 174.89 times those of Action; Drama ??? odds of score is 0.17 times those of Action; Short??? odds of score is 79.59 times those of Action;
+4. Romance ??? odds of score is same as those of Action(not significant).
 
 ```{r optimal plot2, echo = FALSE, eval = TRUE, fig.align = "center", out.width = '70%',fig.cap = "\\label{fig:line plot}Predicted Probabilities Of Film Score Plot",fig.pos = "H"}
 plot_model(model2,type="pred",terms="length[all]")+theme_sjplot()
@@ -641,4 +656,3 @@ Obviously, in the analysis of films greater than 7, this paper finds that comedi
 4.Kubrak T. Impact of Films: Changes in Young People’s Attitudes after Watching a Movie[J]. Behavioral Sciences, 2020, 10(5): 86.
 
 5.Peralta V. Extraction and integration of movielens and imdb data[J]. Laboratoire Prisme, Université de Versailles, Versailles, France, 2007.
-
